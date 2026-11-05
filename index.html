@@ -108,6 +108,17 @@ async function refreshTechnical(){
  isTechnicalGrade=['10','11'].includes(String(result?.grado))||/^1[01]/.test(String(studentProfile.curso||''));
  technicalOptionIds=new Set(['7','27',...options.map(t=>String(t.docente_id))]);
  chosenTechnicalId=result?.docente_elegido==null?null:String(result.docente_elegido);
+ // Recupera la asignación técnica desde un endpoint autenticado e independiente.
+ if(isTechnicalGrade && chosenTechnicalId){
+   const extra=unwrap(await api({accion:'mi_tecnica_asignada',token}));
+   const a=extra?.asignacion;
+   if(a && assignmentId(a)!=null){
+     const id=String(assignmentId(a));
+     const pos=assignments.findIndex(x=>String(assignmentId(x))===id);
+     if(pos<0)assignments.push(a);
+     else assignments[pos]={...assignments[pos],...a};
+   }else if(extra?.aviso){message(extra.aviso,'error');}
+ }
  showAssignments();
  if(!isTechnicalGrade)return;
  area.classList.remove('hidden');
@@ -165,6 +176,7 @@ document.getElementById('logout').addEventListener('click',()=>{token=null;assig
 select.addEventListener('change',()=>{clearSurvey();const i=Number(select.value);if(!choicePassed||select.value===''||!assignments[i]||completed(assignments[i]))return;selected=assignments[i];survey.classList.remove('hidden');document.getElementById('survey-progress').classList.remove('hidden');document.getElementById('submit-panel').classList.remove('hidden');finish.disabled=false;message(`Evaluando a ${teacherName(selected)}${teacherSubjects(selected)?' — '+teacherSubjects(selected):''}.`);});
 finish.addEventListener('click',async()=>{if(busy||!token||!selected||!choicePassed)return;const id=assignmentId(selected);if(!Number.isSafeInteger(Number(id)))return message('Identificador de asignación inválido.','error');const valores=questions.map((_,i)=>{const r=survey.querySelector(`input[name=q${i+1}]:checked`);return r?Number(r.value):null});const missing=valores.indexOf(null);if(missing!==-1){document.getElementById('message').textContent=`Falta responder la pregunta ${missing+1}.`;survey.children[missing].scrollIntoView({behavior:'smooth',block:'center'});survey.children[missing].focus();return;}if(!confirm('¿Confirmas el envío de las 22 respuestas? No podrás modificar esta evaluación después.'))return;busy=true;finish.disabled=true;message('Enviando evaluación...');try{const respuestas=valores.map((valor,i)=>({pregunta_id:i+1,valor}));await api({accion:'enviar',token,asignacion_id:Number(id),respuestas});await refresh();document.getElementById('message').textContent='';message('Evaluación enviada. Gracias por participar.','success');showCompletionIfReady();}catch(e){message(e.message||'No se pudo enviar. Consulta con Coordinación antes de intentar nuevamente.','error');finish.disabled=false;}finally{busy=false;}});
 </script></body></html>
+
 
 
 
