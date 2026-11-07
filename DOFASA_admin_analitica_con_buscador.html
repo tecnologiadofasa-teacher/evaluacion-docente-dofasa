@@ -1,0 +1,133 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>DOFASA | Resultados de Coordinación</title><style>
+:root{font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:#153a2d;background:#f3f7f4}*{box-sizing:border-box}body{margin:0}header{background:#123d2d;color:white;padding:22px max(20px,calc((100vw - 1100px)/2))}h1{font-size:25px;margin:0}header p{margin:5px 0 0;color:#d9e9de}main{max-width:1100px;margin:25px auto;padding:0 16px}.panel{background:white;border:1px solid #d8e5dc;border-radius:15px;padding:22px;margin-bottom:18px}h2{font-size:19px;margin:0 0 16px}label{font-size:13px;display:block;margin-bottom:6px;font-weight:600}input,select,button{font:inherit;border-radius:8px;padding:11px;border:1px solid #aebeb4;max-width:100%;background:white}button{cursor:pointer;background:#176344;color:white;border-color:#176344;font-weight:600}button:disabled{opacity:.6;cursor:wait}.controls{display:flex;gap:12px;flex-wrap:wrap;align-items:end}.controls>div{flex:1;min-width:145px}.controls select,.controls input{width:100%}.muted{color:#61786a}.hidden{display:none}.metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.metric{background:#eff5f0;border-radius:10px;padding:15px}.metric b{font-size:25px;display:block}table{width:100%;border-collapse:collapse;font-size:14px}td,th{padding:10px;border-bottom:1px solid #e4ece7;text-align:left}th{background:#f0f5f1}.scroll{overflow:auto}.bars{display:grid;gap:8px}.barrow{display:grid;grid-template-columns:110px 1fr 55px;align-items:center;gap:10px}.track{background:#e8efe9;border-radius:7px;overflow:hidden;height:16px}.fill{height:100%;background:#2b8261}.small{font-size:12px}.error{color:#a22e28}#notice{min-height:20px}a{color:#b9edcf}@media(max-width:600px){.metrics{grid-template-columns:1fr}.barrow{grid-template-columns:90px 1fr 40px}}
+/* Analítica pedagógica: estilos adicionales, sin alterar el panel existente */
+.analytics-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}.analytics-tabs button{background:#edf0ed;color:#30343b;border-color:#d3d6d3}.analytics-tabs button.active{background:#30343b;color:white;border-color:#30343b}.analytics-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}.analytics-box{background:#f7f8f7;border:1px solid #e1e5e1;border-radius:12px;padding:15px}.analytics-box h3{font-size:15px;margin:0 0 12px}.dimrow{display:grid;grid-template-columns:minmax(160px,1.4fr) minmax(90px,2fr) 62px;align-items:center;gap:10px;margin:12px 0;font-size:13px}.dimtrack{height:13px;border-radius:12px;background:#e3e6e4;overflow:hidden}.dimfill{height:100%;background:#b69861}.dimscore{text-align:right;font-weight:700}.insight{border-left:3px solid #b69861;padding:9px 12px;margin:9px 0;background:#fbfaf7;font-size:14px}.subtle-note{font-size:12px;color:#59665e;line-height:1.55}.analytics-actions{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}.analytics-actions button{background:#30343b;border-color:#30343b}.analytics-table{font-size:13px}.analytics-table td:nth-child(n+2),.analytics-table th:nth-child(n+2){text-align:right}@media(max-width:720px){.analytics-grid{grid-template-columns:1fr}.dimrow{grid-template-columns:minmax(110px,1fr) minmax(65px,1fr) 48px}}@media print{header,.controls,#login-panel,#reset-panel,#notice,.analytics-tabs,.analytics-actions button{display:none!important}body{background:white;color:#222}main{max-width:none;margin:0}.panel{border:0;box-shadow:none;page-break-inside:avoid}.analytics-box{break-inside:avoid}#dashboard{display:block!important}#dashboard>.panel:not(#analytics-panel){display:none!important}#analytics-panel{display:block!important}#analytics-individual[hidden],#analytics-institutional[hidden]{display:none!important}}
+</style></head><body>
+<header><h1>DOFASA · Resultados de evaluación</h1><p>Panel exclusivo de Coordinación · Estadísticas agregadas</p><p><a href="index.html">Volver a la evaluación</a></p></header><main>
+<section class="panel" id="login-panel"><h2>Acceso administrativo</h2><form id="login-form" class="controls"><div><label for="email">Correo institucional autorizado</label><input id="email" type="email" required autocomplete="username"></div><div><label for="password">Contraseña</label><input id="password" type="password" required autocomplete="current-password"></div><button type="submit">Ingresar</button></form><p class="muted small">Utiliza una cuenta creada en Supabase Authentication y autorizada por Coordinación. No utilices códigos de estudiantes.</p></section>
+<div id="dashboard" class="hidden"><section class="panel"><div class="controls"><div><label for="grade">Grado</label><select id="grade"><option value="">Todos</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option><option>11</option></select></div><div><label for="course">Curso</label><select id="course"><option value="">Todos</option></select></div><div><label for="teacher-search">Buscar docente por nombre</label><input id="teacher-search" type="search" placeholder="Escribe nombre o apellido" autocomplete="off" aria-describedby="teacher-search-help"><span id="teacher-search-help" class="muted small">Filtra la lista desplegable sin cambiar la selección.</span><label for="teacher" style="margin-top:8px">Docente</label><select id="teacher"><option value="">Todos</option></select></div><div><label for="period">ID del periodo (opcional)</label><input id="period" type="number" min="1" step="1" placeholder="Todos"></div><button id="apply">Consultar</button><button id="logout" type="button">Cerrar sesión</button></div></section>
+<section class="panel"><h2>Indicadores</h2><div class="metrics"><div class="metric"><span>Evaluaciones asignadas</span><b id="assigned">—</b></div><div class="metric"><span>Evaluaciones completadas</span><b id="done">—</b></div><div class="metric"><span>Participación</span><b id="rate">—</b></div></div></section>
+<section class="panel"><h2>Resultados por docente</h2><p class="muted small">Los promedios corresponden a respuestas de 1 a 5. El sistema oculta distribuciones por pregunta con menos de cinco respuestas.</p><div class="scroll"><table><thead><tr><th>Docente</th><th>Asignaturas</th><th>Asignadas</th><th>Completadas</th><th>Promedio</th></tr></thead><tbody id="teacher-rows"></tbody></table></div></section>
+<section class="panel"><h2>Resultados por pregunta</h2><div class="controls"><div><label for="question">Pregunta</label><select id="question"></select></div></div><p id="question-info" class="muted"></p><div class="bars" id="bars"></div><div class="scroll"><table><thead><tr><th>Docente</th><th>N.º respuestas</th><th>Promedio</th><th>Nunca</th><th>Casi nunca</th><th>Algunas veces</th><th>Casi siempre</th><th>Siempre</th></tr></thead><tbody id="question-rows"></tbody></table></div></section>
+
+<section class="panel" id="analytics-panel"><div class="analytics-actions"><div><h2 style="margin-bottom:5px">Análisis pedagógico DOFASA</h2><p class="muted small" style="margin:0">Informes basados en los resultados agregados de las 22 preguntas.</p></div><button type="button" id="analytics-print">Imprimir informe / Guardar como PDF</button></div>
+<div class="analytics-tabs" style="margin-top:18px"><button type="button" class="active" id="tab-individual">Informe individual</button><button type="button" id="tab-institutional">Panorama institucional</button></div>
+<div id="analytics-individual"><p id="individual-status" class="subtle-note">Selecciona un docente en los filtros superiores y pulsa Consultar.</p><div id="individual-content" class="hidden"><div class="metrics" style="margin:14px 0"><div class="metric"><span>Docente</span><b id="individual-name" style="font-size:17px">—</b></div><div class="metric"><span>Evaluaciones completadas</span><b id="individual-count">—</b></div><div class="metric"><span>Promedio de respuestas publicables</span><b id="individual-average">—</b></div></div><h3>Dimensiones pedagógicas</h3><div id="individual-dimensions"></div><div class="analytics-grid"><div class="analytics-box"><h3>Fortalezas relativas</h3><div id="individual-strengths"></div></div><div class="analytics-box"><h3>Aspectos para acompañamiento</h3><div id="individual-opportunities"></div></div></div><div class="analytics-box" style="margin-top:14px"><h3>Dos sugerencias pedagógicas para el próximo año</h3><div id="individual-recommendations"></div></div></div></div>
+<div id="analytics-institutional" hidden><p id="institutional-status" class="subtle-note"></p><div class="metrics" style="margin:14px 0"><div class="metric"><span>Evaluaciones asignadas</span><b id="institutional-assigned">—</b></div><div class="metric"><span>Evaluaciones completadas</span><b id="institutional-done">—</b></div><div class="metric"><span>Participación en el alcance consultado</span><b id="institutional-rate">—</b></div></div><h3>Dimensiones pedagógicas del alcance consultado</h3><div id="institutional-dimensions"></div><div class="analytics-grid"><div class="analytics-box"><h3>Fortalezas relativas</h3><div id="institutional-strengths"></div></div><div class="analytics-box"><h3>Prioridades de mejoramiento</h3><div id="institutional-opportunities"></div></div></div><div class="analytics-box" style="margin-top:14px"><h3>Orientaciones institucionales para el próximo año</h3><div id="institutional-recommendations"></div></div><p class="subtle-note">La comparación entre grados requiere consultas separadas por grado. No se suman resultados ocultos por privacidad y no se presentan rankings de docentes.</p></div>
+<p class="subtle-note" style="margin-top:15px">Nota metodológica: las cinco dimensiones son una agrupación interpretativa de las 22 preguntas. Los promedios se calculan a partir de respuestas agregadas publicables (mínimo cinco por docente y pregunta). No deben confundirse con resultados completos cuando existan datos suprimidos. Las sugerencias son orientativas y requieren revisión pedagógica.</p></section>
+</div><section class="panel" id="reset-panel"><h2>Restablecer respuestas de pruebas</h2><p class="muted">Operación administrativa. Borra las respuestas y habilita nuevamente las evaluaciones del periodo indicado. Conserva estudiantes y evaluaciones obligatorias. También desbloquea elecciones previas de Técnica SENA y STEAM, con respaldo de las elecciones anteriores. Antes de borrar crea un respaldo y un registro de auditoría en Supabase.</p><div class="controls"><div><label for="reset-period">ID del periodo (obligatorio)</label><input id="reset-period" type="number" min="1" step="1" required placeholder="Ej. 1"></div><div><label for="reset-teacher">Docente (opcional)</label><select id="reset-teacher"><option value="">Todos los docentes del periodo</option></select></div><button id="preview-reset" type="button">Consultar registros a restablecer</button></div><p id="reset-preview" class="muted" aria-live="polite">Selecciona el periodo y consulta antes de confirmar.</p><div id="reset-confirmation" class="hidden"><p class="error"><strong>Atención:</strong> esta acción elimina las respuestas de la base activa para el periodo y docente seleccionados. Solo se recuperan desde el respaldo administrativo.</p><div class="controls"><div><label for="reset-phrase">Escribe BORRAR RESPUESTAS</label><input id="reset-phrase" autocomplete="off" placeholder="BORRAR RESPUESTAS"></div><div><label for="reset-password">Confirma tu contraseña de administrador</label><input id="reset-password" type="password" autocomplete="current-password"></div><button id="execute-reset" type="button" style="background:#9d302b;border-color:#9d302b">Restablecer respuestas</button></div></div></section><p id="notice" role="status"></p></main><script>
+'use strict';const API_URL='https://eovbchtrzzrnwlnegdus.supabase.co/functions/v1/dofasa-api';
+let adminToken=null,expiresAt=0,current=null,allTeachers=[];
+const el=id=>document.getElementById(id);const fmt=n=>Number(n).toLocaleString('es-CO');
+function notify(s,err=false){el('notice').textContent=s;el('notice').className=err?'error':'muted'}
+async function call(data){const r=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'application/json'},cache:'no-store',body:JSON.stringify(data)});const d=await r.json();if(!r.ok||d?.ok===false)throw Error(d?.mensaje||'No fue posible consultar Supabase');return d}
+function clear(){adminToken=null;expiresAt=0;current=null;el('password').value='';el('dashboard').classList.add('hidden');el('login-panel').classList.remove('hidden')}
+el('login-form').addEventListener('submit',async e=>{e.preventDefault();notify('Validando credenciales...');const btn=e.submitter;btn.disabled=true;try{const r=await call({accion:'admin_ingresar',email:el('email').value.trim(),password:el('password').value});if(!r.token)throw Error('No se recibió una sesión administrativa');adminToken=r.token;expiresAt=Number(r.expira_en||0);el('password').value='';el('login-panel').classList.add('hidden');el('dashboard').classList.remove('hidden');await load()}catch(err){clear();notify(err.message,true)}finally{btn.disabled=false}});
+el('logout').addEventListener('click',()=>{clear();notify('Sesión administrativa cerrada.')});
+el('grade').addEventListener('change',()=>{const g=el('grade').value;const s=el('course');s.replaceChildren(new Option('Todos',''));if(g){for(let i=1;i<=3;i++)s.add(new Option(`${g}0${i}`,`${g}0${i}`))}});
+// Buscador auxiliar: conserva el selector original y su valor elegido.
+function normalizeTeacherName(value){return String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('es').trim()}
+function filterTeacherOptions(){
+ const select=el('teacher');const selected=select.value;
+ const term=normalizeTeacherName(el('teacher-search').value);
+ select.replaceChildren(new Option('Todos',''));
+ for(const d of allTeachers){
+   if(!term||normalizeTeacherName(d.nombre).includes(term)||String(d.id)===selected){
+     select.add(new Option(d.nombre,String(d.id)));
+   }
+ }
+ select.value=selected;
+ if(select.selectedIndex<0)select.value='';
+}
+el('teacher-search').addEventListener('input',filterTeacherOptions);
+el('apply').addEventListener('click',load);
+el('question').addEventListener('change',renderQuestion);
+async function load(){if(!adminToken)return;if(expiresAt && Date.now()/1000>=expiresAt){clear();return notify('La sesión venció. Ingresa nuevamente.',true)}notify('Consultando estadísticas...');el('apply').disabled=true;try{const r=await call({accion:'admin_resultados',token:adminToken,docente_id:el('teacher').value||null,grado:el('grade').value||null,curso:el('course').value||null,periodo_id:el('period').value||null});current=r;const ds=r.docentes||[];if(!allTeachers.length){allTeachers=ds.map(d=>({id:d.id,nombre:d.nombre}));const s=el('teacher'),rsel=el('reset-teacher');for(const d of allTeachers){rsel.add(new Option(d.nombre,String(d.id)))}filterTeacherOptions()}const assigned=ds.reduce((a,d)=>a+Number(d.asignadas),0),done=ds.reduce((a,d)=>a+Number(d.completadas),0);el('assigned').textContent=fmt(assigned);el('done').textContent=fmt(done);el('rate').textContent=assigned?`${(done/assigned*100).toFixed(1).replace('.',',')} %`:'—';const tbody=el('teacher-rows');tbody.replaceChildren();for(const d of ds){const tr=document.createElement('tr');for(const v of [d.nombre,d.asignaturas||'—',d.asignadas,d.completadas,d.promedio??'—']){const td=document.createElement('td');td.textContent=String(v);tr.append(td)}tbody.append(tr)}const q=el('question'),old=q.value;q.replaceChildren();const unique=[...new Map((r.preguntas||[]).map(x=>[x.numero,x.enunciado])).entries()].sort((a,b)=>a[0]-b[0]);for(const [num,title] of unique)q.add(new Option(`${num}. ${title}`,String(num)));if(unique.some(([n])=>String(n)===old))q.value=old;renderQuestion();renderAnalytics();notify('Consulta completada.')}catch(err){notify(err.message,true);if(/venci|autorizad|denegad/i.test(err.message))clear()}finally{el('apply').disabled=false}}
+function renderQuestion(){const rows=(current?.preguntas||[]).filter(x=>String(x.numero)===el('question').value);const tbody=el('question-rows');tbody.replaceChildren();const names=new Map((current?.docentes||[]).map(x=>[x.id,x.nombre]));const total=[0,0,0,0,0];let n=0,sum=0;for(const r of rows){const tr=document.createElement('tr');const values=[names.get(r.docente_id)||'Docente',r.total,r.promedio,...r.frecuencias];for(const v of values){const td=document.createElement('td');td.textContent=String(v);tr.append(td)}tbody.append(tr);r.frecuencias.forEach((v,i)=>total[i]+=Number(v));n+=Number(r.total);sum+=Number(r.promedio)*Number(r.total)}el('question-info').textContent=n?`${fmt(n)} respuestas · Promedio ${(sum/n).toFixed(2).replace('.',',')}/5`:'Sin datos publicables para esta pregunta y filtros (mínimo cinco respuestas por docente).';const bars=el('bars');bars.replaceChildren();['Nunca','Casi nunca','Algunas veces','Casi siempre','Siempre'].forEach((label,i)=>{const row=document.createElement('div');row.className='barrow';const t=document.createElement('span');t.textContent=label;const track=document.createElement('div');track.className='track';const fill=document.createElement('div');fill.className='fill';fill.style.width=n?`${total[i]/n*100}%`:'0%';track.append(fill);const val=document.createElement('span');val.textContent=String(total[i]);row.append(t,track,val);bars.append(row)})}
+
+let resetPreview=null;
+function resetInvalidate(){resetPreview=null;el('reset-confirmation').classList.add('hidden');el('reset-preview').textContent='Consulta nuevamente los registros antes de confirmar.';el('reset-phrase').value='';el('reset-password').value=''}
+el('reset-period').addEventListener('input',resetInvalidate);
+el('reset-teacher').addEventListener('change',resetInvalidate);
+el('preview-reset').addEventListener('click',async()=>{
+  if(!adminToken)return notify('Inicia sesión como administrador.',true);
+  const period=Number(el('reset-period').value);
+  if(!Number.isSafeInteger(period)||period<=0)return notify('Indica un ID de periodo válido.',true);
+  const teacher=el('reset-teacher').value?Number(el('reset-teacher').value):null;
+  const btn=el('preview-reset');btn.disabled=true;
+  try{
+    const r=await call({accion:'admin_previsualizar_reinicio',token:adminToken,periodo_id:period,docente_id:teacher});
+    resetPreview={period,teacher,asignaciones:Number(r.asignaciones),respuestas:Number(r.respuestas)};
+    el('reset-preview').textContent=`Periodo ${period} · ${resetPreview.asignaciones} evaluaciones respondidas · ${resetPreview.respuestas} respuestas que se eliminarán. También se liberarán elecciones de Técnica y STEAM del alcance seleccionado, aunque no existan respuestas.`;
+    el('reset-confirmation').classList.remove('hidden');
+    notify('Previsualización completada.');
+  }catch(e){resetInvalidate();notify(e.message,true)}finally{btn.disabled=false}
+});
+el('execute-reset').addEventListener('click',async()=>{
+  if(!resetPreview||resetPreview.period!==Number(el('reset-period').value)||
+    resetPreview.teacher!==(el('reset-teacher').value?Number(el('reset-teacher').value):null))
+    return notify('Debes consultar nuevamente el alcance del reinicio.',true);
+  if(el('reset-phrase').value.trim()!=='BORRAR RESPUESTAS')return notify('Escribe exactamente BORRAR RESPUESTAS.',true);
+  if(!el('reset-password').value)return notify('Escribe tu contraseña.',true);
+  if(!confirm(`Vas a restablecer ${resetPreview.asignaciones} evaluaciones del periodo ${resetPreview.period}. ¿Confirmas?`))return;
+  const btn=el('execute-reset');btn.disabled=true;
+  try{
+    const r=await call({accion:'admin_reiniciar_respuestas',token:adminToken,periodo_id:resetPreview.period,
+      docente_id:resetPreview.teacher,confirmacion:'BORRAR RESPUESTAS',password:el('reset-password').value});
+    notify(`Reinicio confirmado. ${r.respuestas} respuestas eliminadas; ${r.elecciones_desbloqueadas??0} elecciones desbloqueadas. Respaldo n.º ${r.reinicio_id}.`);
+    resetInvalidate();await load();
+  }catch(e){notify(e.message,true)}finally{btn.disabled=false;el('reset-password').value=''}
+});
+
+// --- Informes pedagógicos: solo lectura, sobre resultados ya autorizados ---
+const DIMENSIONS=[
+ {name:'Planeación y organización de la enseñanza',questions:[1,3,7,20],tip:'Revisar la comunicación anticipada de propósitos, las instrucciones y la organización de las clases.'},
+ {name:'Estrategias pedagógicas y aprendizaje significativo',questions:[8,9,13,14,15,16,17,22],tip:'Diversificar las estrategias activas, aprovechar los saberes previos y promover proyectos contextualizados.'},
+ {name:'Evaluación formativa y acompañamiento',questions:[4,5,6,21],tip:'Fortalecer la retroalimentación oportuna, los criterios compartidos y los planes de mejoramiento.'},
+ {name:'Convivencia y clima de aula',questions:[10,11,12],tip:'Consolidar acuerdos de convivencia y estrategias de resolución dialogada de conflictos.'},
+ {name:'Participación y relaciones pedagógicas',questions:[2,18,19],tip:'Ampliar los espacios de escucha, colaboración y participación activa del estudiantado.'}
+];
+let analyticsTab='individual';
+function makeNode(tag,cls,text){const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=String(text);return n}
+function fillList(id,items,empty='Información insuficiente para identificar tendencias.'){
+ const root=el(id);root.replaceChildren();if(!items.length){root.append(makeNode('p','subtle-note',empty));return}
+ for(const x of items){const p=makeNode('p','insight',x);root.append(p)}
+}
+function dimensionStats(teacherId){
+ const all=(current?.preguntas||[]).filter(r=>!teacherId||String(r.docente_id)===String(teacherId));
+ return DIMENSIONS.map(d=>{
+  const subset=all.filter(r=>d.questions.includes(Number(r.numero)) && Number(r.total)>=5 && Number.isFinite(Number(r.promedio)));
+  const count=subset.reduce((s,r)=>s+Number(r.total),0);
+  const avg=count?subset.reduce((s,r)=>s+Number(r.promedio)*Number(r.total),0)/count:null;
+  const covered=new Set(subset.map(r=>Number(r.numero))).size;
+  return {...d,avg,count,covered,complete:covered===d.questions.length};
+ });
+}
+function showDimensions(id,stats){const root=el(id);root.replaceChildren();for(const d of stats){const row=makeNode('div','dimrow');const title=makeNode('span','',d.name);const track=makeNode('div','dimtrack');const fill=makeNode('div','dimfill');fill.style.width=d.avg===null?'0%':`${Math.max(0,Math.min(100,d.avg/5*100))}%`;track.append(fill);const val=makeNode('span','dimscore',d.avg===null?'S/D':d.avg.toFixed(2).replace('.',','));row.append(title,track,val);root.append(row);if(!d.complete)root.append(makeNode('p','subtle-note',`${d.name}: ${d.covered} de ${d.questions.length} preguntas con datos publicables; resultado parcial.`));}}
+function insights(stats,prefix){const valid=stats.filter(d=>d.avg!==null&&d.complete).sort((a,b)=>a.avg-b.avg);const low=valid.slice(0,2),high=[...valid].reverse().slice(0,2);
+ fillList(prefix+'-strengths',high.map(d=>`${d.name}: ${d.avg.toFixed(2).replace('.',',')} / 5`));
+ fillList(prefix+'-opportunities',low.map(d=>`${d.name}: ${d.avg.toFixed(2).replace('.',',')} / 5`));
+ fillList(prefix+'-recommendations',low.map((d,i)=>`${i+1}. ${d.tip}`),'No se generan recomendaciones hasta contar con al menos una dimensión completa y publicable.');
+}
+function renderAnalytics(){if(!current)return;
+ const ds=current.docentes||[];const selected=el('teacher').value;
+ const indStatus=el('individual-status'),content=el('individual-content');
+ const teacher=selected?ds.find(d=>String(d.id)===String(selected)):null;
+ if(!selected){indStatus.textContent='Para el informe individual, selecciona un docente en el filtro superior y pulsa Consultar.';content.classList.add('hidden')}
+ else if(!teacher){indStatus.textContent='No se encontraron resultados del docente con los filtros actuales.';content.classList.add('hidden')}
+ else{indStatus.textContent='Informe del docente seleccionado. Las dimensiones incompletas se indican explícitamente.';content.classList.remove('hidden');el('individual-name').textContent=teacher.nombre;el('individual-count').textContent=fmt(teacher.completadas||0);
+  const st=dimensionStats(selected);const rows=(current.preguntas||[]).filter(r=>String(r.docente_id)===String(selected)&&Number(r.total)>=5);const total=rows.reduce((a,r)=>a+Number(r.total),0);const mean=total?rows.reduce((a,r)=>a+Number(r.promedio)*Number(r.total),0)/total:null;
+  el('individual-average').textContent=mean===null?'S/D':mean.toFixed(2).replace('.',',')+' / 5';showDimensions('individual-dimensions',st);insights(st,'individual');
+ }
+ const assigned=ds.reduce((s,d)=>s+Number(d.asignadas||0),0),done=ds.reduce((s,d)=>s+Number(d.completadas||0),0);
+ el('institutional-assigned').textContent=fmt(assigned);el('institutional-done').textContent=fmt(done);el('institutional-rate').textContent=assigned?(done/assigned*100).toFixed(1).replace('.',',')+' %':'S/D';
+ const parts=[];if(el('grade').value)parts.push('grado '+el('grade').value);if(el('course').value)parts.push('curso '+el('course').value);if(selected)parts.push('docente '+(teacher?.nombre||selected));if(el('period').value)parts.push('periodo '+el('period').value);
+ el('institutional-status').textContent=parts.length?'Alcance filtrado: '+parts.join(' · ')+'. Para el panorama de toda la institución, selecciona «Todos» en grado, curso y docente.':'Panorama general del conjunto de resultados consultados.';
+ const stats=dimensionStats(null);showDimensions('institutional-dimensions',stats);insights(stats,'institutional');
+}
+function setAnalyticsTab(tab){analyticsTab=tab;el('analytics-individual').hidden=tab!=='individual';el('analytics-institutional').hidden=tab!=='institutional';el('tab-individual').classList.toggle('active',tab==='individual');el('tab-institutional').classList.toggle('active',tab==='institutional')}
+el('tab-individual').addEventListener('click',()=>setAnalyticsTab('individual'));
+el('tab-institutional').addEventListener('click',()=>setAnalyticsTab('institutional'));
+el('analytics-print').addEventListener('click',()=>window.print());
+
+</script></body></html>
