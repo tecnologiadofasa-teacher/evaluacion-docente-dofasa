@@ -28,6 +28,11 @@
 <p class="small muted">Permite una nueva elección al estudiante. Si la evaluación anterior tiene respuestas, primero deberá restablecerse.</p>
 <label for="unlock-confirm">Escribe DESBLOQUEAR para confirmar</label><input id="unlock-confirm" autocomplete="off" placeholder="DESBLOQUEAR">
 <button id="unlock-submit" type="button">Desbloquear elección</button></div></div>
+<div class="op-card" id="full-reset-card"><h3>Restablecimiento general de DOFASA</h3>
+<p class="small muted">Afecta a TODOS los estudiantes: elimina todas las respuestas y elecciones electivas, deja las evaluaciones obligatorias pendientes y conserva estudiantes, códigos y asignaciones obligatorias. Esta acción es irreversible. Realiza primero una copia de seguridad.</p>
+<label for="full-reset-confirm">Escribe RESTABLECER TODA DOFASA</label>
+<input id="full-reset-confirm" autocomplete="off" placeholder="RESTABLECER TODA DOFASA">
+<button id="full-reset-submit" type="button" class="danger-btn">Restablecer toda DOFASA</button></div>
 <p id="student-operation-message" role="status" aria-live="polite"></p></section><div id="results-panels"><section class="panel"><div class="teacher-search-row"><div><label for="teacher-search">Buscar docente por nombre o apellido</label><input id="teacher-search" type="search" placeholder="Escribe Mahecha, Javier o Salamanca" autocomplete="off"><small class="muted" id="teacher-search-help">Escribe parte del nombre y selecciona al docente en los resultados que aparecen debajo.</small><div id="teacher-matches" class="teacher-matches" aria-live="polite"></div></div></div><div class="controls"><div><label for="grade">Grado</label><select id="grade"><option value="">Todos</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option><option>11</option></select></div><div><label for="course">Curso</label><select id="course"><option value="">Todos</option></select></div><div><label for="teacher">Docente</label><select id="teacher"><option value="">Todos</option></select></div><button id="apply">Consultar</button></div></section>
 <section class="panel"><h2>Indicadores</h2><div class="metrics"><div class="metric"><span>Evaluaciones asignadas</span><b id="assigned">—</b></div><div class="metric"><span>Evaluaciones completadas</span><b id="done">—</b></div><div class="metric"><span>Participación</span><b id="rate">—</b></div></div></section>
 <section class="panel" id="individual-teachers"><h2>Resultados por docente</h2><p class="muted small">Los promedios corresponden a respuestas de 1 a 5. El sistema oculta distribuciones por pregunta con menos de cinco respuestas.</p><div class="scroll"><table><thead><tr><th>Docente</th><th>Asignaturas</th><th>Asignadas</th><th>Completadas</th><th>Promedio</th></tr></thead><tbody id="teacher-rows"></tbody></table></div></section>
@@ -166,6 +171,20 @@ el('reset-submit').onclick=async()=>{if(!selected)return msg('Selecciona un estu
  if(el('reset-confirm').value.trim()!=='RESTABLECER')return msg('Escribe RESTABLECER para confirmar.',true);
  if(!confirm(`ATENCIÓN: se eliminarán las respuestas de TODAS las evaluaciones de ${selected.nombre}. ¿Confirmas?`))return;
  const button=el('reset-submit');button.disabled=true;try{const r=await call({accion:'admin_restablecer',token:adminToken,estudiante_id:Number(selected.id),asignacion_id:null});msg(`Se restablecieron ${r.evaluaciones} evaluaciones y eliminaron ${r.respuestas_borradas} respuestas. El estudiante deberá ingresar nuevamente.`);el('reset-confirm').value='';await lookup()}catch(err){msg(err.message,true)}finally{button.disabled=false}};
+el('full-reset-submit').onclick=async()=>{
+ const confirmacion='RESTABLECER TODA DOFASA';
+ if(el('full-reset-confirm').value.trim()!==confirmacion)
+   return msg('Escribe RESTABLECER TODA DOFASA para confirmar.',true);
+ if(!confirm('ATENCIÓN: se eliminarán TODAS las respuestas y elecciones electivas de TODOS los estudiantes de DOFASA. Se conservarán estudiantes y asignaciones obligatorias. ¿Continuar?'))return;
+ if(!confirm('SEGUNDA CONFIRMACIÓN: esta operación institucional es irreversible. ¿Confirmas que existe una copia de seguridad y deseas continuar?'))return;
+ const button=el('full-reset-submit');button.disabled=true;
+ try{
+  const r=await call({accion:'admin_restablecer_general',token:adminToken,confirmacion});
+  msg(`Restablecimiento general completado. Respuestas eliminadas: ${r.respuestas_borradas}; elecciones eliminadas: ${r.elecciones_borradas}; asignaciones electivas eliminadas: ${r.asignaciones_electivas_borradas}; evaluaciones marcadas pendientes: ${r.evaluaciones_marcadas_pendientes}. Estudiantes conservados: ${r.estudiantes_conservados}.`);
+  el('full-reset-confirm').value='';
+ }catch(e){msg('No se ejecutó el restablecimiento general: '+e.message,true)}
+ finally{button.disabled=false}
+};
 el('unlock-submit').onclick=async()=>{if(!selected)return msg('Selecciona un estudiante.',true);
  if(el('unlock-confirm').value.trim()!=='DESBLOQUEAR')return msg('Escribe DESBLOQUEAR para confirmar.',true);
  if(!confirm(`¿Desbloquear la elección de ${selected.nombre}? El estudiante deberá elegir nuevamente.`))return;
