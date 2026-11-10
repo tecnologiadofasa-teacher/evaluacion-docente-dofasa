@@ -85,6 +85,43 @@ const AXES=[
  {name:'Convivencia y clima de aula',nums:[10,11,12],action:'Establecer acuerdos de convivencia y fortalecer la comunicación respetuosa en el aula.'},
  {name:'Participación y trabajo colaborativo',nums:[2,18,19],action:'Promover la participación equitativa mediante roles, trabajo colaborativo y seguimiento.'}
 ];
+
+const PEDAGOGY={
+ 'Planeación y organización pedagógica':{
+  fuerte:'La organización de las actividades recibe una valoración favorable, lo que sugiere una articulación adecuada de los aprendizajes previstos y el trabajo de aula.',
+  mejora:'Conviene revisar la coherencia entre los propósitos de aprendizaje, la secuencia de actividades y los tiempos previstos.',
+  acciones:['Explicar los aprendizajes esperados al iniciar cada secuencia.','Organizar actividades progresivas y ajustar los tiempos según el avance del grupo.','Cerrar la secuencia comprobando los aprendizajes alcanzados.'],
+  evidencia:'Planeaciones, secuencias didácticas y registros de seguimiento.'},
+ 'Evaluación, retroalimentación y mejoramiento':{
+  fuerte:'Las prácticas de evaluación reciben una valoración favorable y ofrecen información útil sobre el progreso del aprendizaje.',
+  mejora:'Es conveniente revisar la claridad de los criterios de evaluación y la utilidad de la retroalimentación para orientar mejoras.',
+  acciones:['Socializar los criterios antes de cada actividad evaluativa.','Entregar observaciones específicas sobre logros y aspectos por ajustar.','Ofrecer una oportunidad de corrección y verificar el avance posterior.'],
+  evidencia:'Rúbricas, trabajos corregidos y registros de retroalimentación.'},
+ 'Estrategias didácticas y aprendizaje significativo':{
+  fuerte:'Las estrategias didácticas reciben una valoración favorable y parecen facilitar la comprensión y aplicación de los contenidos.',
+  mejora:'Se recomienda diversificar las actividades y ampliar las oportunidades de aplicar los aprendizajes a situaciones contextualizadas.',
+  acciones:['Plantear problemas vinculados con el entorno del estudiante.','Alternar actividades prácticas, análisis de casos y ejercicios de aplicación.','Recoger evidencias de transferencia de lo aprendido.'],
+  evidencia:'Productos de aprendizaje, guías y registros de actividades.'},
+ 'Convivencia y clima de aula':{
+  fuerte:'La convivencia y el clima de aula reciben una valoración favorable, compatible con interacciones respetuosas durante las actividades.',
+  mejora:'Conviene revisar los acuerdos de convivencia y las estrategias de diálogo para atender situaciones que afectan el aprendizaje.',
+  acciones:['Construir y revisar acuerdos de aula con los estudiantes.','Abrir espacios breves de diálogo y escucha.','Registrar y hacer seguimiento a los acuerdos de resolución de conflictos.'],
+  evidencia:'Acuerdos de aula, actas y registros de seguimiento.'},
+ 'Participación y trabajo colaborativo':{
+  fuerte:'La participación y el trabajo colaborativo reciben una valoración favorable, lo que sugiere oportunidades de intercambio entre estudiantes.',
+  mejora:'Se recomienda ampliar la participación de todos los estudiantes y distribuir de manera más equilibrada las responsabilidades grupales.',
+  acciones:['Asignar roles claros y rotativos en las actividades de grupo.','Utilizar mecanismos para escuchar a estudiantes con menor participación.','Valorar aportes individuales y productos colectivos.'],
+  evidencia:'Rúbricas de colaboración, roles asignados y productos grupales.'}
+};
+function pedagogicalText(axis,kind,global=false){
+ const p=PEDAGOGY[axis.name];if(!p)return axis.name;
+ const avg=axis.avg.toFixed(2).replace('.',',');
+ const prefix=`${axis.name} (${avg}/5). `;
+ if(kind==='fuerte')return prefix+p.fuerte+(global?' Se recomienda sistematizar y compartir las prácticas institucionales mejor valoradas.':' Se recomienda mantener estas prácticas y documentar sus resultados.');
+ if(kind==='mejora')return prefix+p.mejora+' Esta prioridad es relativa a los otros ejes evaluados.';
+ return prefix+p.acciones.map((a,i)=>`${i+1}) ${a}`).join(' ')+' Evidencias de seguimiento: '+p.evidencia;
+}
+
 function analysisText(id,message){const node=el(id);node.replaceChildren();const li=document.createElement('li');li.textContent=message;node.append(li)}
 function renderAxes(){
  const global=activeModule==='institutional';
@@ -131,9 +168,9 @@ function renderAxes(){
  const sorted=[...usable].sort((a,b)=>b.avg-a.avg);
  const low=[...usable].sort((a,b)=>a.avg-b.avg);
  function put(id,items){const list=el(id);list.replaceChildren();for(const item of items){const li=document.createElement('li');li.textContent=item;list.append(li)}}
- put('strengths',sorted.slice(0,Math.min(2,sorted.length)).map(a=>`${a.name}: ${a.avg.toFixed(2).replace('.',',')}/5. Eje con una de las valoraciones relativas más altas.`));
- put('improvements',low.slice(0,Math.min(2,low.length)).map(a=>`${a.name}: ${a.avg.toFixed(2).replace('.',',')}/5. Eje prioritario para revisar, en comparación con los demás.`));
- put('strategies',low.slice(0,Math.min(3,low.length)).map((a,i)=>`${i+1}. ${a.name}: ${a.action} ${global?'Definir responsables y revisar su evolución en el siguiente ciclo institucional.':'Revisar su aplicación mediante evidencias de aula y retroalimentación estudiantil.'}`));
+ put('strengths',sorted.slice(0,Math.min(2,sorted.length)).map(a=>pedagogicalText(a,'fuerte',global)));
+ put('improvements',low.slice(0,Math.min(2,low.length)).map(a=>pedagogicalText(a,'mejora',global)));
+ put('strategies',low.slice(0,Math.min(3,low.length)).map((a,i)=>pedagogicalText(a,'estrategia',global)));
 }
 
 // Gestión de estudiantes: todas las modificaciones se realizan mediante operaciones autenticadas del servidor.
@@ -232,6 +269,20 @@ const axes=[
  ['Convivencia y clima de aula',[10,11,12],'Fortalecer acuerdos y comunicación respetuosa.'],
  ['Participación y trabajo colaborativo',[2,18,19],'Promover participación equitativa y colaboración.']
 ];
+
+const PDF_PEDAGOGY={
+ 'Planeación y organización pedagógica':['La organización de las actividades presenta una valoración favorable; se recomienda mantener y documentar las secuencias que facilitan el aprendizaje.','Revisar la coherencia entre los propósitos de aprendizaje, las actividades y los tiempos previstos.','Explicar los aprendizajes esperados; organizar actividades progresivas; comprobar los avances al cierre.','Planeaciones, secuencias y registros de seguimiento.'],
+ 'Evaluación, retroalimentación y mejoramiento':['Las prácticas de evaluación reciben una valoración favorable y permiten reconocer avances en el aprendizaje.','Revisar la claridad de los criterios y la utilidad de la retroalimentación para mejorar el desempeño.','Socializar criterios; entregar observaciones específicas; ofrecer oportunidades de corrección y verificar avances.','Rúbricas, trabajos corregidos y registros de retroalimentación.'],
+ 'Estrategias didácticas y aprendizaje significativo':['Las actividades didácticas reciben una valoración favorable y parecen facilitar la comprensión y aplicación de contenidos.','Diversificar las estrategias y relacionar los contenidos con situaciones próximas a los estudiantes.','Plantear problemas contextualizados; combinar actividades prácticas y análisis de casos; verificar la aplicación de lo aprendido.','Guías, productos de aprendizaje y registros de actividades.'],
+ 'Convivencia y clima de aula':['Las relaciones de aula reciben una valoración favorable, compatible con un entorno respetuoso para aprender.','Revisar los acuerdos de convivencia y la atención de situaciones que afectan el aprendizaje.','Construir acuerdos; propiciar espacios de diálogo; hacer seguimiento a la resolución de conflictos.','Acuerdos de aula, actas y registros de seguimiento.'],
+ 'Participación y trabajo colaborativo':['La participación y la colaboración reciben una valoración favorable y sugieren oportunidades de intercambio entre estudiantes.','Ampliar las oportunidades de participación y equilibrar las responsabilidades en el trabajo grupal.','Asignar roles rotativos; facilitar la participación de todos; valorar aportes individuales y colectivos.','Roles, rúbricas y productos grupales.']
+};
+function pdfPedagogy(x,kind){
+ const p=PDF_PEDAGOGY[x.name],score=Number(x.avg).toFixed(2).replace('.',',');
+ if(!p)return x.name;
+ return x.name+' ('+score+'/5). '+(kind==='fuerte'?p[0]:kind==='mejora'?p[1]+' Prioridad relativa a los demás ejes.':p[2]+' Evidencias de seguimiento: '+p[3]);
+}
+
 const e=(doc,tag,txt)=>{const x=doc.createElement(tag);if(txt!==undefined)x.textContent=String(txt);return x};
 const fmt=n=>Number(n).toFixed(2).replace('.',',');
 function section(doc,root,title){const x=e(doc,'section');x.append(e(doc,'h2',title));root.append(x);return x}
@@ -283,16 +334,16 @@ async function generate(){
  const ax=section(doc,main,'Análisis de los cinco ejes');
  table(doc,ax,['Eje','Cobertura','Promedio'],results.map(x=>[x.name,x.found+' de '+x.length,x.avg===null?'Sin datos':fmt(x.avg)+'/5']));
  const comparable=results.filter(x=>x.complete&&x.avg!==null);
- const strengths=section(doc,main,'Fortalezas'),improvements=section(doc,main,'Oportunidades de mejoramiento'),strategies=section(doc,main,'Estrategias sugeridas');
+ const strengths=section(doc,main,'Aspectos fuertes'),improvements=section(doc,main,'Aspectos por mejorar'),strategies=section(doc,main,'Estrategias de mejoramiento sugeridas');
  if(comparable.length<2){strengths.append(e(doc,'p','Datos insuficientes para comparar ejes completos.'));improvements.append(e(doc,'p','Datos insuficientes para establecer prioridades.'));strategies.append(e(doc,'p','Se requieren resultados publicables en al menos dos ejes completos.'))}
  else{
-  list(doc,strengths,[...comparable].sort((a,b)=>b.avg-a.avg).slice(0,2).map(x=>x.name+': '+fmt(x.avg)+'/5. Valoración relativa destacada.'));
+  list(doc,strengths,[...comparable].sort((a,b)=>b.avg-a.avg).slice(0,2).map(x=>pdfPedagogy(x,'fuerte')));
   const low=[...comparable].sort((a,b)=>a.avg-b.avg);
-  list(doc,improvements,low.slice(0,2).map(x=>x.name+': '+fmt(x.avg)+'/5. Área prioritaria para revisión.'));
-  list(doc,strategies,low.slice(0,3).map(x=>x.name+': '+x.action+' Revisar evidencias de aula.'));
+  list(doc,improvements,low.slice(0,2).map(x=>pdfPedagogy(x,'mejora')));
+  list(doc,strategies,low.slice(0,3).map(x=>pdfPedagogy(x,'estrategia')));
  }
  const limits=section(doc,main,'Alcance del informe');
- const note=e(doc,'p','Se presentan exclusivamente resultados autorizados por el servidor. Las preguntas con menos de cinco respuestas no muestran valores. Los ejes con cobertura incompleta no se emplean para establecer fortalezas ni prioridades. Las recomendaciones son orientativas.');note.className='note';limits.append(note);
+ const note=e(doc,'p','Se presentan exclusivamente resultados autorizados por el servidor. Las preguntas con menos de cinco respuestas no muestran valores. Los ejes con cobertura incompleta no se emplean para establecer fortalezas ni prioridades. Las recomendaciones son orientativas, basadas en comparaciones relativas de ejes completos; no constituyen diagnósticos individuales ni pruebas de deficiencia.');note.className='note';limits.append(note);
  const print=e(doc,'button','Imprimir / Guardar como PDF');print.onclick=()=>popup.print();doc.body.insertBefore(print,header);popup.focus();
  }catch(err){popup.document.body.textContent='Error al generar el informe: '+(err.message||err);alert('No se pudo generar el informe: '+(err.message||err))}finally{button.disabled=false}
 }
